@@ -1,0 +1,193 @@
+PREFIX schema: <http://schema.org/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+SELECT DISTINCT 
+	?type
+	?name 
+	(SAMPLE(?startDate) AS ?start)
+	(SAMPLE(?endDate) AS ?end)
+	(SAMPLE(?lieu) AS ?location)
+	(SAMPLE(?adresseString) AS ?adresse)
+	(SAMPLE(?i) AS ?image)
+	(SAMPLE(?d) AS ?description)
+	(SAMPLE(?lat) AS ?latitude)
+	(SAMPLE(?long) AS ?longitude)
+	(GROUP_CONCAT(?g) AS ?sources)
+WHERE { 
+    # On veut tous les objets de type schema.org Event
+    ?x rdf:type schema:Event .
+    # on cherche les données dans un graphe
+    GRAPH ?g {
+    	# on recupere le nom de l'evenement
+    	?x schema:name ?name .
+    	# on reselectionne le type au cas ou ce serait une sous-classe de schema:Event
+        ?x rdf:type ?type .
+        # la date de debut de l'événement
+        OPTIONAL {?x schema:startDate ?startDate . }
+    	# la date de fin de l'événement
+    	OPTIONAL {?x schema:endDate ?endDate . }
+    	# le nom du lieu de l'événement
+        OPTIONAL {?x schema:location/schema:name ?lieu}
+        # les caracteristiques de l'adresse
+        OPTIONAL {
+        	?x schema:location/schema:address ?a .
+        	?a schema:streetAddress ?streetAddress .
+        	?a schema:postalCode ?postalCode .
+        	?a schema:addressLocality ?addressLocality .
+        	# on concatene le nom de la rue, le code postal, le nom de la ville
+        	BIND (CONCAT(STR(?streetAddress), " ", STR(?postalCode), " ", STR(?addressLocality)) AS ?adresseString)
+        }
+        # le visuel de l'événement
+        OPTIONAL {?x schema:image ?i}
+        # la description de l'événement
+        OPTIONAL {?x schema:description ?d}
+        # les coordonnées géographiques de l'événement
+        OPTIONAL {
+            ?x schema:location ?loc .
+            ?loc schema:geo/schema:latitude ?lat .
+            ?loc schema:geo/schema:longitude ?long .
+        }
+    }
+    # filtrage sur la date de debut
+    FILTER(STR(?startDate) > "2017-03-06")
+    # FILTER(STR(?startDate) < "2017-06-06")
+    # FILTER(?type == schema:TheaterEvent)
+    # + critère plein-texte
+}
+# regroupement des lignes qui ont le meme ?type et le meme ?nom
+GROUP BY ?type ?name
+# tri des lignes suivant la date de l'événement
+ORDER BY (STR(?startDate))
+# + LIMIT et OFFSET pour paginer la requête
+
+queryString=queryString.replaceAll("BEGINDATE", "FILTER(STR(?startDate) >\""+startDate+"\")").
+										replaceAll("ENDDATE",  "FILTER(STR(?startDate) <\")"+endDate+"\"").
+										replaceAll("EVENTCHOOSE", "FILTER(?type ==schema:"+evenement+")");
+
+
+
+
+
+
+
+
+PREFIX schema: <http://schema.org/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+SELECT (COUNT(?name) AS ?count)
+WHERE {
+	{
+	SELECT DISTINCT 
+	?type
+	?name 
+	WHERE { 
+	    # On veut tous les objets de type schema.org Event
+	    ?x rdf:type schema:Event .
+	    # on cherche les données dans un graphe
+	    GRAPH ?g {
+	    	# on recupere le nom de l'evenement
+	    	?x schema:name ?name .
+	    	# on reselectionne le type au cas ou ce serait une sous-classe de schema:Event
+	        ?x rdf:type ?type .
+	        # la date de debut de l'événement
+	        OPTIONAL {?x schema:startDate ?startDate . }
+	    	# la date de fin de l'événement
+	    	OPTIONAL {?x schema:endDate ?endDate . }
+	    	# le nom du lieu de l'événement
+	        OPTIONAL {?x schema:location/schema:name ?lieu}
+	        # les caracteristiques de l'adresse
+	        OPTIONAL {
+	        	?x schema:location/schema:address ?a .
+	        	?a schema:streetAddress ?streetAddress .
+	        	?a schema:postalCode ?postalCode .
+	        	?a schema:addressLocality ?addressLocality .
+	        	# on concatene le nom de la rue, le code postal, le nom de la ville
+	        	BIND (CONCAT(STR(?streetAddress), " ", STR(?postalCode), " ", STR(?addressLocality)) AS ?adresseString)
+	        }
+	        # le visuel de l'événement
+	        OPTIONAL {?x schema:image ?i}
+	        # la description de l'événement
+	        OPTIONAL {?x schema:description ?d}
+	        # les coordonnées géographiques de l'événement
+	        OPTIONAL {
+	            ?x schema:location ?loc .
+	            ?loc schema:geo/schema:latitude ?lat .
+	            ?loc schema:geo/schema:longitude ?long .
+	        }
+	    }
+
+	    # filtrage sur la date de debut
+	    FILTER(STR(?startDate) > "2017-03-06")
+	    # FILTER(STR(?startDate) < "2017-06-06")
+	    # FILTER(?type == schema:TheaterEvent)
+	    # + critère plein-texte
+	}
+	# regroupement des lignes qui ont le meme ?type et le meme ?nom
+	GROUP BY ?type ?name
+	}
+}
+
+
+//comptage des types
+
+
+PREFIX schema: <http://schema.org/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+SELECT ?type (COUNT(?name) AS ?count)
+WHERE {
+	{
+	SELECT DISTINCT 
+	?type
+	?name 
+	WHERE { 
+	    # On veut tous les objets de type schema.org Event
+	    ?x rdf:type schema:Event .
+	    # on cherche les données dans un graphe
+	    GRAPH ?g {
+	    	# on recupere le nom de l'evenement
+	    	?x schema:name ?name .
+	    	# on reselectionne le type au cas ou ce serait une sous-classe de schema:Event
+	        ?x rdf:type ?type .
+	        # la date de debut de l'événement
+	        OPTIONAL {?x schema:startDate ?startDate . }
+	    	# la date de fin de l'événement
+	    	OPTIONAL {?x schema:endDate ?endDate . }
+	    	# le nom du lieu de l'événement
+	        OPTIONAL {?x schema:location/schema:name ?lieu}
+	        # les caracteristiques de l'adresse
+	        OPTIONAL {
+	        	?x schema:location/schema:address ?a .
+	        	?a schema:streetAddress ?streetAddress .
+	        	?a schema:postalCode ?postalCode .
+	        	?a schema:addressLocality ?addressLocality .
+	        	# on concatene le nom de la rue, le code postal, le nom de la ville
+	        	BIND (CONCAT(STR(?streetAddress), " ", STR(?postalCode), " ", STR(?addressLocality)) AS ?adresseString)
+	        }
+	        # le visuel de l'événement
+	        OPTIONAL {?x schema:image ?i}
+	        # la description de l'événement
+	        OPTIONAL {?x schema:description ?d}
+	        # les coordonnées géographiques de l'événement
+	        OPTIONAL {
+	            ?x schema:location ?loc .
+	            ?loc schema:geo/schema:latitude ?lat .
+	            ?loc schema:geo/schema:longitude ?long .
+	        }
+	    }
+
+	    # filtrage sur la date de debut
+	    # FILTER(STR(?startDate) > "2017-03-06")
+	    # FILTER(STR(?startDate) < "2017-06-06")
+	    # FILTER(?type == schema:TheaterEvent)
+	    # + critère plein-texte
+	}
+	# regroupement des lignes qui ont le meme ?type et le meme ?nom
+	GROUP BY ?type ?name
+	}
+}
+GROUP BY ?type
+ORDER BY DESC(?count)

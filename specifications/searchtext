@@ -1,0 +1,131 @@
+PREFIX schema: <http://schema.org/>
+PREFIX luc: <http://www.ontotext.com/owlim/lucene#>
+
+//creation index sur le nom
+INSERT DATA {
+  luc:index luc:setParam "uris" .
+  luc:include luc:setParam "literals" .
+  luc:moleculeSize luc:setParam "2" .
+  luc:includePredicates luc:setParam schema:name .
+}
+
+INSERT DATA {
+  luc:search luc:createIndex "true" .
+}
+
+
+SELECT * {
+  ?id luc:search "Anne*"
+}
+//creation index sur description 
+INSERT DATA {
+  luc:index luc:setParam "uris" .
+  luc:include luc:setParam "literals" .
+  luc:moleculeSize luc:setParam "1" .
+  luc:includePredicates luc:setParam schema:description .
+}
+
+INSERT DATA {
+  luc:description luc:createIndex "true" .
+}
+
+SELECT * {
+  ?des luc:description "Intelligence*"
+}
+
+
+SELECT ?obj ?name {
+    
+    ?des luc:description "Intelligence*";
+         schema:description ?obj;
+         schema:name ?name;
+    
+  
+}
+
+//name ett description
+INSERT DATA {
+  luc:index luc:setParam "uris" .
+  luc:include luc:setParam "literals" .
+  luc:moleculeSize luc:setParam "2" .
+  luc:includePredicates luc:setParam "http://schema.org/name http://schema.org/description" .
+}
+//select
+PREFIX schema: <http://schema.org/>
+PREFIX luc: <http://www.ontotext.com/owlim/lucene#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+SELECT  ?id ?name ?des ?type{
+  ?id luc:searchdata "jour*";
+      schema:name ?name;
+      schema:description ?des;
+      rdf:type ?type.
+}
+
+//search full text
+
+PREFIX schema: <http://schema.org/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX luc: <http://www.ontotext.com/owlim/lucene#>
+SELECT DISTINCT 
+	?type
+	?name 
+	(SAMPLE(?startDate) AS ?start)
+	(SAMPLE(?endDate) AS ?end)
+	(SAMPLE(?lieu) AS ?location)
+	(SAMPLE(?adresseString) AS ?adresse)
+	(SAMPLE(?i) AS ?image)
+	(SAMPLE(?d) AS ?description)
+	(SAMPLE(?lat) AS ?latitude)
+	(SAMPLE(?long) AS ?longitude)
+	(GROUP_CONCAT(?g) AS ?sources)
+WHERE { 
+    # On veut tous les objets de type schema.org Event
+    ?x rdf:type schema:Event .
+    ?x luc:searchdata "pc".
+    # on cherche les données dans un graphe
+    GRAPH ?g {
+    	# on recupere le nom de l'evenement
+       
+    	?x schema:name ?name .
+       
+    	# on reselectionne le type au cas ou ce serait une sous-classe de schema:Event
+        ?x rdf:type ?type .
+        # la date de debut de l'événement
+        OPTIONAL {?x schema:startDate ?startDate . }
+    	# la date de fin de l'événement
+    	OPTIONAL {?x schema:endDate ?endDate . }
+    	# le nom du lieu de l'événement
+        OPTIONAL {?x schema:location/schema:name ?lieu}
+        # les caracteristiques de l'adresse
+        OPTIONAL {
+        	?x schema:location/schema:address ?a .
+        	?a schema:streetAddress ?streetAddress .
+        	?a schema:postalCode ?postalCode .
+        	?a schema:addressLocality ?addressLocality .
+        	# on concatene le nom de la rue, le code postal, le nom de la ville
+        	BIND (CONCAT(STR(?streetAddress), " ", STR(?postalCode), " ", STR(?addressLocality)) AS ?adresseString)
+        }
+        # le visuel de l'événement
+        OPTIONAL {?x schema:image ?i}
+        # la description de l'événement
+        OPTIONAL {?x schema:description ?d}
+        # les coordonnées géographiques de l'événement
+        OPTIONAL {
+            ?x schema:location ?loc .
+            ?loc schema:geo/schema:latitude ?lat .
+            ?loc schema:geo/schema:longitude ?long .
+        }
+    }
+    # filtrage sur la date de debut
+   # FILTER(STR(?startDate) > "2017-03-06")
+   # FILTER(STR(?startDate) < "2017-06-06")
+    #FILTER(?type = schema:TheaterEvent)
+   
+}
+# regroupement des lignes qui ont le meme ?type et le meme ?nom
+GROUP BY ?type ?name
+# tri des lignes suivant la date de l'événement
+ORDER BY (STR(?startDate))
+# + LIMIT et OFFSET pour paginer la requête
