@@ -3,7 +3,10 @@ package fr.sparna.touraine.evenements;
 
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.QueryLanguage;
@@ -357,5 +360,75 @@ public class GraphDao {
 				"}";
 		return req;
 	}
+	
+	private Map<String,Integer>getTypeNumber(RepositoryConnection repositoryConnection){
+		String req="PREFIX schema: <http://schema.org/>"+
+				"PREFIX skos: <http://www.w3.org/2004/02/skos/core#>"+
+				"PREFIX foaf: <http://xmlns.com/foaf/0.1/>"
+				+"PREFIX luc: <http://www.ontotext.com/owlim/lucene#>"+
+
+		"SELECT ?type (COUNT(?name) AS ?count)"+
+		"WHERE {"+
+		"{"+
+		"SELECT DISTINCT"+
+		"?type"+
+		"?name "+ 
+		"WHERE {"+
+		"?x rdf:type schema:Event ."+
+
+			   " GRAPH ?g {"+
+
+			    	"?x schema:name ?name ."
+			    	+ "PLAINTEXT \n"+
+
+			        "?x rdf:type ?type ."+
+			        " OPTIONAL {?x schema:startDate ?startDate . }"+
+
+			    	"OPTIONAL {?x schema:endDate ?endDate . }"+
+
+			       " OPTIONAL {?x schema:location/schema:name ?lieu}"+
+
+					"OPTIONAL {\n"
+					+ "?x schema:location/schema:address ?a .\n"
+					+ "?a schema:streetAddress ?streetAddress .\n"
+					+ "?a schema:postalCode ?postalCode .\n"
+					+ "?a schema:addressLocality ?addressLocality .\n"
+					+ "BIND (CONCAT(STR(?streetAddress) , STR(?postalCode), STR(?addressLocality)) AS ?adresseString)\n"+
+					"}"+
+					"OPTIONAL {?x schema:image ?i}\n"
+					+ "					OPTIONAL {?x schema:description ?d}\n"
+					+ "					OPTIONAL {\n"
+					+ "							  ?x schema:location ?loc .\n"
+					+ "				  			  ?loc schema:geo/schema:latitude ?lat .\n"
+					+ "							  ?loc schema:geo/schema:longitude ?long .\n"
+					+ "				             }\n"+
+					"}"+
+
+				"BEGINDATE"+"\n"
+				+ "ENDDATE"+"\n"
+				+ "EVENTCHOOSE"+"\n"
+
+				+ "}\n"
+				+ " GROUP BY ?type ?name\n"
+				+ 
+				"}"+
+				"}"
+				+ "GROUP BY ?type ORDER BY DESC(?count)";
+		TupleQuery tupleQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, req);
+		Integer value=0;
+		String type=null;
+		Map<String,Integer> map=new LinkedHashMap<String,Integer>();
+		try (TupleQueryResult result = tupleQuery.evaluate()) {
+			while (result.hasNext()) {  // iterate over the result
+				BindingSet bindingSet = result.next();
+				value =( (Literal)bindingSet.getValue("count")).intValue();
+				type = bindingSet.getValue("type").stringValue();	
+				map.put(type, value);
+			}
+		}
+		return map;
+		
+	}
+	
 }
 

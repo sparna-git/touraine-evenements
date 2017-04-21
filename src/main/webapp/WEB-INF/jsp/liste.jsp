@@ -21,6 +21,7 @@
 <script src="theme-paper/resource/bootstrap/js/bootstrap.min.js"></script>
 <script src="theme-paper/resource/js/jquery-ui.min.js"></script>
 <script>
+
 	$(function() {
 		$("#datefin").datepicker();
 		$("#datefin").datepicker("option", "dateFormat", "yy-mm-dd");
@@ -30,6 +31,7 @@
 	});
 	function concatParameters() {
 		var checkedBoxCoches = "";
+		
 		var compteur = 0;
 		for (i = 1; i < 18; i++) {
 			if (eval("document.forms.general.evenement" + i
@@ -43,6 +45,7 @@
 					checkedBoxCoches += "-"
 							+ document.getElementById('evenement' + i).value;
 					
+					
 				}
 			}
 		}
@@ -51,6 +54,7 @@
 		document.forms.newform.fin.value = document.forms.general.datefin.value;
 		document.forms.newform.zonesearch.value = document.forms.general.search.value;
 		document.forms.newform.submit();
+		
 	}
 </script>
 </head>
@@ -87,16 +91,11 @@
 							<td><input type="text" name="datefin"
 								value="${data.endDate}" id="datefin"></td>
 						</tr>
-
 						<tr>
 							<td>
-								<label><input type="checkbox" name="evenement1"
-										value="MusicEvent" id="evenement1" 
-										<c:if test="${data.listEvent!=null}">
-											<c:forEach items="${data.listEvent}" var="event">
-												
-											</c:forEach>
-										</c:if>  >Musique
+								<label>	
+										<input type="checkbox" name="evenement1"value="MusicEvent" id="evenement1">
+											Musique		
 								</label>
 							</td>
 						</tr>
@@ -197,7 +196,7 @@
 									Le ${evenement.datedeb}
 									<h6 class="media-heading">
 										<strong> <font color="#2ECCFA"> <c:if
-													test="${evenement.nom!=null}">${evenement.nom}</c:if>
+													test="${evenement.nom!=null}">${evenement.nom} </c:if>
 										</font>
 										</strong>
 									</h6>
