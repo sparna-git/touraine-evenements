@@ -1,11 +1,16 @@
 package fr.sparna.touraine.evenements;
 
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class EvenementData {
 	public static final String KEY = EvenementData.class.getCanonicalName();
 
+	protected List<TraitementDesTypes> listType;
+	
 	protected List<Evenement> dataList;
 
 	protected String evenement;
@@ -20,7 +25,6 @@ public class EvenementData {
 	
 	protected String fullText;
 	
-	protected List<String> listEvent;
 	
 	
 
@@ -50,6 +54,17 @@ public class EvenementData {
 
 	public void setResultLenght(Integer resultLenght) {
 		this.resultLenght = resultLenght;
+	}
+
+	
+	public List<TraitementDesTypes>  getListType() {
+		return listType;
+	}
+
+	public void setMapType(List<TraitementDesTypes> listType) {
+		   
+		this.listType = listType;
+		
 	}
 
 	public void setEvenement(String evenement) {
@@ -84,7 +99,6 @@ public class EvenementData {
 		if(extraireevenement.equals("")){
 			return null;
 		}else{
-			this.listEvent=Arrays.asList(extraireevenement.split("[-]"));
 			return Arrays.asList(extraireevenement.split("[-]"));
 		}
 

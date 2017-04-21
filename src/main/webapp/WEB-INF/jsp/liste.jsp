@@ -7,7 +7,7 @@
 
 <c:set var="data"
 	value="${requestScope['fr.sparna.touraine.evenements.EvenementData']}" />
-<c:set var="compteur" value="0" />
+<c:set var="compteur" scope="session" value="0" />
 <html>
 <head>
 <title>Touraine événements</title>
@@ -33,7 +33,7 @@
 		var checkedBoxCoches = "";
 		
 		var compteur = 0;
-		for (i = 1; i < 18; i++) {
+		for (i = 1; i < 7; i++) {
 			if (eval("document.forms.general.evenement" + i
 					+ ".checked == true")) {
 				compteur++;
@@ -91,78 +91,24 @@
 							<td><input type="text" name="datefin"
 								value="${data.endDate}" id="datefin"></td>
 						</tr>
-						<tr>
-							<td>
-								<label>	
-										<input type="checkbox" name="evenement1"value="MusicEvent" id="evenement1">
-											Musique		
-								</label>
-							</td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" id="evenement2"
-									name="evenement2" value="DanceEvent">Dance</label></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" id="evenement3"
-									name="evenement3" value="ChildrensEvent">Enfants</label></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" id="evenement4"
-									name="evenement4" value="Festival">Festival</label></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" id="evenement5"
-									name="evenement5" value="TheaterEvent">Théatre</label></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" id="evenement6"
-									name="evenement6" value="ComedyEvent">Comédie</label></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" id="evenement7"
-									name="evenement7" value="SportsEvent">Sport</label></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" id="evenement8"
-									name="evenement8" value="SocialEvent">Social</label></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" id="evenement9"
-									name="evenement9" value="LiteraryEvent">Littérature</label></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" id="evenement10"
-									name="evenement10" value="BusinessEvent">Commerce</label></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" id="evenement11"
-									name="evenement11" value="DeliveryEvent">Livraison</label></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" id="evenement12"
-									name="evenement12" value="CourseInstance">Cours</label></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" id="evenement13"
-									name="evenement13" value="EducationEvent">Education</label></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" id="evenement14"
-									name="evenement14" value="ExhibitionEvent">Exposition</label></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" id="evenement15"
-									name="evenement15" value="FoodEvent">Alimentaire</label></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" id="evenement16"
-									name="evenement16" value="PublicationEvent">Publication</label></td>
-						</tr>
-						<tr>
-							<td><label><input type="checkbox" id="evenement17"
-									name="evenement17" value="SaleEvent">Vente</label></td>
-						</tr>
+						<c:forEach items="${data.listType}" var="listtype">
+							
+						 
+							<tr>
+								<td>
+									<label>	
+										<c:if test="${listtype!=null}">
+											<c:set var="compteur" scope="session" value="${compteur+1}" />
+											<input type="checkbox" name="evenement${compteur}"value="${listtype.mapType}" id="evenement${compteur}">
+												${listtype.nom}	
+												
+										</c:if>	
+									</label>
+								</td>
+							</tr>
+							
+						</c:forEach>
+						
 						<tr>
 							<td><button id="valid" onClick="concatParameters()">Filtrer</button></td>
 						</tr>

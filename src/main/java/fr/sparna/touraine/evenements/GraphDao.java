@@ -25,7 +25,7 @@ public class GraphDao {
 	private RepositoryManager repositoryManager;
 	private Repository repository;
 	protected Integer resultLength;
-
+	protected List<TraitementDesTypes>typeNumber;
 
 	/**
 	 * Etablis la connexion avec le repository dans graphdb
@@ -62,9 +62,20 @@ public class GraphDao {
 	public Integer getResultLength() {
 		return resultLength;
 	}
-
+	/**
+	 * définis la taille du resultat d'une recherche donnée
+	 * @param resultLength
+	 */
 	public void setResultLength(Integer resultLength) {
 		this.resultLength = resultLength;
+	}
+
+	public List<TraitementDesTypes> getTypeNumberList() {
+		return typeNumber;
+	}
+
+	public void setTypeNumberList(List<TraitementDesTypes> typeNumber) {
+		this.typeNumber = typeNumber;
 	}
 
 	/**
@@ -80,6 +91,7 @@ public class GraphDao {
 		EvenementSourceDescriptionLimit tronquer=null;
 		try (RepositoryConnection repositoryConnection=repository.getConnection()) {
 			String querySizeResult=getSparqlSizeRequest();
+			String queryStringTypeNumber=getSparqlRequestTypeNumber();
 			String queryString = "PREFIX schema: <http://schema.org/>"
 					+"PREFIX skos: <http://www.w3.org/2004/02/skos/core#>"
 					+"PREFIX foaf: <http://xmlns.com/foaf/0.1/>"
@@ -137,38 +149,49 @@ public class GraphDao {
 			//date debut
 			if((object.startDate==null)||(object.startDate.equals(""))){
 				queryString=queryString.replaceAll("BEGINDATE", "");
+				//string requête pour avoir le nombre de résultat total pour une recherche
 				querySizeResult=querySizeResult.replaceAll("BEGINDATE", "");
+				//string requête pour avoir pour le nombre total pour chaque type d'événement présent
+				queryStringTypeNumber=queryStringTypeNumber.replaceAll("BEGINDATE", "");
 
 			}else{
 				queryString=queryString.replaceAll("BEGINDATE", "FILTER(STR(?startDate) >\""+object.startDate+"\")");
 				querySizeResult=querySizeResult.replaceAll("BEGINDATE", "FILTER(STR(?startDate) >\""+object.startDate+"\")");
+				queryStringTypeNumber=queryStringTypeNumber.replaceAll("BEGINDATE", "FILTER(STR(?startDate) >\""+object.startDate+"\")");
 			}
 			//date de fin
 			if((object.endDate==null)||(object.endDate.equals(""))){
 				queryString=queryString.replaceAll("ENDDATE",  "");
 				querySizeResult=querySizeResult.replaceAll("ENDDATE",  "");
+				queryStringTypeNumber=queryStringTypeNumber.replaceAll("ENDDATE",  "");
 			}else{
 				queryString=queryString.replaceAll("ENDDATE",  "FILTER(STR(?startDate) <\""+object.endDate+"\")");
 				querySizeResult=querySizeResult.replaceAll("ENDDATE",  "FILTER(STR(?startDate) <\""+object.endDate+"\")");
+				queryStringTypeNumber=queryStringTypeNumber.replaceAll("ENDDATE",  "FILTER(STR(?startDate) <\""+object.endDate+"\")");
 			}
 
 			//filtrage sur evenement
 			if((object.evenement==null)||(object.evenement.isEmpty())){
 				queryString=queryString.replaceAll("EVENTCHOOSE", "");
 				querySizeResult=querySizeResult.replaceAll("EVENTCHOOSE", "");
+				queryStringTypeNumber=queryStringTypeNumber.replaceAll("EVENTCHOOSE", "");
 			}else{
 				queryString=queryString.replaceAll("EVENTCHOOSE", filterListEvenement);
 				querySizeResult=querySizeResult.replaceAll("EVENTCHOOSE", filterListEvenement);
+				queryStringTypeNumber=queryStringTypeNumber.replaceAll("EVENTCHOOSE", filterListEvenement);
 			}
 			//plain text
 			if((object.searchFullText==null)||(object.searchFullText.equals(""))){
 				queryString=queryString.replaceAll("PLAINTEXT", "");
 				querySizeResult=querySizeResult.replaceAll("PLAINTEXT", "");
+				queryStringTypeNumber=queryStringTypeNumber.replaceAll("PLAINTEXT", "");
 			}else{
 				queryString=queryString.replaceAll("PLAINTEXT", "?x luc:searchdatas \""+object.searchFullText+"*\".");
 				querySizeResult=querySizeResult.replaceAll("PLAINTEXT","?x luc:searchdatas \""+object.searchFullText+"*\".");
+				queryStringTypeNumber=queryStringTypeNumber.replaceAll("PLAINTEXT","?x luc:searchdatas \""+object.searchFullText+"*\".");
 			}
 			setResultLength(getSizeEvent(querySizeResult, repositoryConnection));
+			setTypeNumberList(getTypeNumber(queryStringTypeNumber, repositoryConnection));
 			System.out.println(queryString);
 			TupleQuery tupleQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
 			Evenement event=null;
@@ -360,8 +383,9 @@ public class GraphDao {
 				"}";
 		return req;
 	}
-	
-	private Map<String,Integer>getTypeNumber(RepositoryConnection repositoryConnection){
+
+	private String getSparqlRequestTypeNumber(){
+
 		String req="PREFIX schema: <http://schema.org/>"+
 				"PREFIX skos: <http://www.w3.org/2004/02/skos/core#>"+
 				"PREFIX foaf: <http://xmlns.com/foaf/0.1/>"
@@ -414,21 +438,36 @@ public class GraphDao {
 				"}"+
 				"}"
 				+ "GROUP BY ?type ORDER BY DESC(?count)";
+		return req;
+
+	}
+
+	private List<TraitementDesTypes>getTypeNumber(String req, RepositoryConnection repositoryConnection){
+
 		TupleQuery tupleQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, req);
 		Integer value=0;
 		String type=null;
-		Map<String,Integer> map=new LinkedHashMap<String,Integer>();
+		List<TraitementDesTypes> listType=new ArrayList<TraitementDesTypes>();
 		try (TupleQueryResult result = tupleQuery.evaluate()) {
 			while (result.hasNext()) {  // iterate over the result
 				BindingSet bindingSet = result.next();
+				TraitementDesTypes tr=new TraitementDesTypes();
 				value =( (Literal)bindingSet.getValue("count")).intValue();
-				type = bindingSet.getValue("type").stringValue();	
-				map.put(type, value);
+				type = bindingSet.getValue("type").stringValue();
+				if(type.equals("http://schema.org/Event") || type.equals("http://schema.org/VisuelArtsEvent")){
+					listType.add(null);
+				}else{
+
+					tr.setMapType(type);
+					tr.setNombre(value);
+					listType.add(tr);
+				}
+
 			}
 		}
-		return map;
-		
+		return listType;
+
 	}
-	
+
 }
 
