@@ -21,12 +21,22 @@ import org.eclipse.rdf4j.repository.manager.RepositoryManager;
 public class GraphDao {
 
 	private static final String URLS="http://172.17.2.139:7200";
+	
 	private static final String REPOSITORY="touraine-evenements";
+	
 	private RepositoryManager repositoryManager;
+	
 	private Repository repository;
+	
 	protected Integer resultLength;
+	
 	protected List<TraitementDesTypes>typeNumber;
+	
+	protected Integer sizetypeNumber;
 
+	private Integer compteur=0;
+	
+	
 	/**
 	 * Etablis la connexion avec le repository dans graphdb
 	 */
@@ -75,7 +85,19 @@ public class GraphDao {
 	}
 
 	public void setTypeNumberList(List<TraitementDesTypes> typeNumber) {
+		
 		this.typeNumber = typeNumber;
+		for (TraitementDesTypes traitementDesTypes : typeNumber) {
+			if(traitementDesTypes==null){
+				compteur++;
+			}
+		}
+		this.sizetypeNumber=(typeNumber.size()-compteur);
+		compteur=0;
+	}
+
+	public Integer getSizetypeNumber() {
+		return sizetypeNumber;
 	}
 
 	/**
@@ -185,13 +207,14 @@ public class GraphDao {
 				queryString=queryString.replaceAll("PLAINTEXT", "");
 				querySizeResult=querySizeResult.replaceAll("PLAINTEXT", "");
 				queryStringTypeNumber=queryStringTypeNumber.replaceAll("PLAINTEXT", "");
+				setTypeNumberList(getTypeNumber(queryStringTypeNumber, repositoryConnection));
 			}else{
 				queryString=queryString.replaceAll("PLAINTEXT", "?x luc:searchdatas \""+object.searchFullText+"*\".");
 				querySizeResult=querySizeResult.replaceAll("PLAINTEXT","?x luc:searchdatas \""+object.searchFullText+"*\".");
 				queryStringTypeNumber=queryStringTypeNumber.replaceAll("PLAINTEXT","?x luc:searchdatas \""+object.searchFullText+"*\".");
+				setTypeNumberList(getTypeNumber(queryStringTypeNumber, repositoryConnection));
 			}
 			setResultLength(getSizeEvent(querySizeResult, repositoryConnection));
-			setTypeNumberList(getTypeNumber(queryStringTypeNumber, repositoryConnection));
 			System.out.println(queryString);
 			TupleQuery tupleQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
 			Evenement event=null;
@@ -207,6 +230,9 @@ public class GraphDao {
 					if(bindingSet.getValue("type")!=null){
 						String valueOfType = bindingSet.getValue("type").stringValue();
 						event.setType(valueOfType);
+						TraitementDesTypes tr=new TraitementDesTypes();
+						tr.setMapType(valueOfType);
+						event.setType(tr.nom);
 					}else{
 						event.setType("");
 					}
@@ -452,16 +478,20 @@ public class GraphDao {
 			while (result.hasNext()) {  // iterate over the result
 				BindingSet bindingSet = result.next();
 				TraitementDesTypes tr=new TraitementDesTypes();
-				value =( (Literal)bindingSet.getValue("count")).intValue();
-				type = bindingSet.getValue("type").stringValue();
-				if(type.equals("http://schema.org/Event") || type.equals("http://schema.org/VisuelArtsEvent")){
-					listType.add(null);
-				}else{
+				value =((Literal)bindingSet.getValue("count")).intValue();
+				if(bindingSet.getValue("type")!=null){
+					type = bindingSet.getValue("type").stringValue();
+					if(type.equals("http://schema.org/Event") || type.equals("http://schema.org/VisuelArtsEvent")){
+						listType.add(null);
+					}else{
 
-					tr.setMapType(type);
-					tr.setNombre(value);
-					listType.add(tr);
+						tr.setMapType(type);
+						tr.setNombre(value);
+						listType.add(tr);
+					}
 				}
+				continue;
+				
 
 			}
 		}

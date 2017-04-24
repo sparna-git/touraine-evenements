@@ -81,7 +81,7 @@ public class TraitementDesTypes {
 			 this.nom="Publication";
 		 }
 		 if(mapType.equals("http://schema.org/VisualArtsEvent")){
-			 mapType="VisualArtEvent";
+			 mapType="VisualArtsEvent";
 			 this.nom="Art Visuel";
 		 }
 		this.mapType = mapType;

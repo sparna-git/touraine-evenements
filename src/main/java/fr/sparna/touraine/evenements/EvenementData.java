@@ -6,10 +6,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class EvenementData {
+public class EvenementData{
 	public static final String KEY = EvenementData.class.getCanonicalName();
 
-	protected List<TraitementDesTypes> listType;
+	protected List<TraitementDesTypes> mapType;
+	
+	protected List<TraitementDesTypes> listTypeCopy;
 	
 	protected List<Evenement> dataList;
 
@@ -25,6 +27,7 @@ public class EvenementData {
 	
 	protected String fullText;
 	
+	protected Integer eventTypeLength;
 	
 	
 
@@ -42,6 +45,15 @@ public class EvenementData {
 
 	public void setDataList(List<Evenement> dataList) {
 		this.dataList = dataList;
+		
+	}
+
+	public Integer getEventTypeLength() {
+		return eventTypeLength;
+	}
+	
+	public void setEventTypeLength(Integer eventTypeLength) {
+		this.eventTypeLength = eventTypeLength;
 	}
 
 	public String getEvenement() {
@@ -57,14 +69,23 @@ public class EvenementData {
 	}
 
 	
-	public List<TraitementDesTypes>  getListType() {
-		return listType;
+	public List<TraitementDesTypes>  getMapType() {
+		return mapType;
 	}
 
 	public void setMapType(List<TraitementDesTypes> listType) {
 		   
-		this.listType = listType;
+		this.mapType = listType;
 		
+	}
+	
+
+	public void setListTypeCopy(List<TraitementDesTypes> listTypeCopy) {
+		this.listTypeCopy = listTypeCopy;
+	}
+
+	public List<TraitementDesTypes> getListTypeCopy() {
+		return listTypeCopy;
 	}
 
 	public void setEvenement(String evenement) {

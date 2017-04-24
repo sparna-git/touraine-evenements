@@ -33,13 +33,15 @@
 		var checkedBoxCoches = "";
 		
 		var compteur = 0;
-		for (i = 1; i < 7; i++) {
+		for (i = 1; i < ${data.eventTypeLength+1}; i++) {
 			if (eval("document.forms.general.evenement" + i
 					+ ".checked == true")) {
 				compteur++;
+				
 				if (compteur === 1) {
 					checkedBoxCoches += document
 							.getElementById('evenement' + i).value;
+					${check}
 					
 				} else if (compteur > 1) {
 					checkedBoxCoches += "-"
@@ -60,8 +62,8 @@
 </head>
 <body>
 	<div class="container">
-		<h3 style="text-align: center; margin-bottom: 50px;">Touraine
-			événements</h3>
+		<h4 style="text-align: center; margin-bottom: 50px;">Touraine
+			événements</h4>
 		<div class="row-content">
 
 			<div class="col-sm-2 sidenav">
@@ -91,24 +93,21 @@
 							<td><input type="text" name="datefin"
 								value="${data.endDate}" id="datefin"></td>
 						</tr>
-						<c:forEach items="${data.listType}" var="listtype">
-							
-						 
-							<tr>
-								<td>
-									<label>	
-										<c:if test="${listtype!=null}">
-											<c:set var="compteur" scope="session" value="${compteur+1}" />
-											<input type="checkbox" name="evenement${compteur}"value="${listtype.mapType}" id="evenement${compteur}">
-												${listtype.nom}	
-												
-										</c:if>	
-									</label>
-								</td>
-							</tr>
-							
-						</c:forEach>
 						
+							<c:forEach items="${data.mapType}" var="listtype">
+								<tr>
+									<td><label> <c:if test="${listtype!=null}">
+												<c:set var="compteur" scope="session" value="${compteur+1}" />
+												<input type="checkbox" name="evenement${compteur}"
+													value="${listtype.mapType}" id="evenement${compteur}">
+													${listtype.nom}	(${listtype.nombre})
+													
+											</c:if>
+									</label></td>
+								</tr>
+							</c:forEach>
+									
+
 						<tr>
 							<td><button id="valid" onClick="concatParameters()">Filtrer</button></td>
 						</tr>
@@ -131,7 +130,7 @@
 							<div class="media ">
 								<div class="media-left">
 
-									<a href="#"> <img id="imagepath"
+									<a href="${evenement.sources[0]}"> <img id="imagepath"
 										class="media-object img-thumbnail"
 										<c:if test="${evenement.imagePath!=null}"> onerror="this.src='theme-paper/resource/img/noimage.png';" src="${evenement.imagePath}"</c:if>
 										<c:if test="${evenement.imagePath==null}"> src="theme-paper/resource/img/noimage.png"</c:if>
@@ -142,9 +141,12 @@
 									Le ${evenement.datedeb}
 									<h6 class="media-heading">
 										<strong> <font color="#2ECCFA"> <c:if
-													test="${evenement.nom!=null}">${evenement.nom} </c:if>
+													test="${evenement.nom!=null}">
+													<a href="${evenement.sources[0]}">${evenement.nom}</a>
+												</c:if>
 										</font>
 										</strong>
+										   ${evenement.type}
 									</h6>
 									${evenement.description}<br />
 									<c:if test="${evenement.sources!=null}">

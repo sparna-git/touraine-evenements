@@ -64,6 +64,7 @@ public class EvenementsController {
 		data.setDataList(dao.listEvenement(post,index));
 		data.setResultLenght(dao.getResultLength());
 		data.setMapType(dao.getTypeNumberList());
+		data.setEventTypeLength(dao.getSizetypeNumber());
 		return new ModelAndView("liste", EvenementData.KEY, data);
 	}
 
