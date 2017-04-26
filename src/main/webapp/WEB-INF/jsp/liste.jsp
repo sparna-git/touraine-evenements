@@ -6,7 +6,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 
 <c:set var="data"
-	value="${requestScope['fr.sparna.touraine.evenements.EvenementData']}" />
+	value="${requestScope['fr.sparna.touraine.evenements.EventData']}" />
 <c:set var="compteur" scope="session" value="0" />
 <html>
 <head>
@@ -58,6 +58,51 @@
 		document.forms.newform.submit();
 		
 	}
+	
+	function remove(eventToRemove){
+		
+		var evenement="${data.evenement}";
+		var array1=["Musique","Dance","Théâtre","Commerce","Alimentaire",
+		            "Vente","Festival","Exposition",
+		            "Publication", "Art visuel", 
+		            "Enfant", "Sport","Social",
+		            "Littérature","Livraison",
+		            "Education","Comédie"
+		            ];
+		var array2=["MusicEvent",
+		            "DanceEvent","TheaterEvent",
+		            "BusinessEvent","FoodEvent",
+		            "SaleEvent","Festival","ExhibitionEvent",
+		            "PublicationEvent", "VisualArtsEvent", 
+		            "ChildrensEvent", "SportsEvent","SocialEvent",
+		            "LiteraryEvent","DeliveryEvent",
+		            "EducationEvent","ComedyEvent"
+		            ];
+		for(var i=0; i<array1.length;i++){
+			if(eventToRemove===array1[i]){
+				eventToRemove=array2[i];
+				break;
+			}
+		}
+		
+		var n = evenement.indexOf(eventToRemove);
+		
+	    if(n!=0){
+	    	st=evenement.replace("-"+eventToRemove,"");
+	    }else{
+	    	if(evenement===eventToRemove){
+				st=evenement.replace(eventToRemove,"");
+			}else{
+				st=evenement.replace(eventToRemove+"-","");
+			}
+	    	
+	    }
+	    document.forms.newform.evenement.value=st;
+	    document.forms.newform.deb.value ="${data.startDate}";
+		document.forms.newform.fin.value ="${data.endDate}";
+		document.forms.newform.zonesearch.value ="${data.fullText}";
+		document.forms.newform.submit();
+	}
 </script>
 </head>
 <body>
@@ -93,6 +138,22 @@
 							<td><input type="text" name="datefin"
 								value="${data.endDate}" id="datefin"></td>
 						</tr>
+						
+							<c:if test="${data.evenementListName!=null}">
+								<c:forEach items="${data.evenementListName}" var="list">
+									<tr>
+										<td>
+											<div class="alert alert-default alert-dismissible" role="alert" style="height:10px;">
+												 <button type="button" class="close" data-dismiss="alert" value="${list}" onclick="remove(this.value)" aria-label="Close">
+												  	<span aria-hidden="true">&times;</span>
+												  </button>
+											  <strong>${list}</strong>
+											</div>
+									   </td>
+									</tr>
+								</c:forEach>
+							</c:if>
+							
 						
 							<c:forEach items="${data.mapType}" var="listtype">
 								<tr>

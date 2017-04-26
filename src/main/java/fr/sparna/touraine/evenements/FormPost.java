@@ -10,7 +10,7 @@ public class FormPost {
 	
 	protected String endDate;
 	
-	protected EvenementData data;
+	protected EventData data;
 	
 	protected String searchFullText;
 

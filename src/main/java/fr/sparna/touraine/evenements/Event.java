@@ -2,7 +2,7 @@ package fr.sparna.touraine.evenements;
 
 import java.util.List;
 
-public class Evenement {
+public class Event {
 	
 	protected String nom;
 	

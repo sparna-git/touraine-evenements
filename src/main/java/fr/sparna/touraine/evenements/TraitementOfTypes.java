@@ -1,6 +1,6 @@
 package fr.sparna.touraine.evenements;
 
-public class TraitementDesTypes {
+public class TraitementOfTypes {
 	
 	protected String mapType;
 	

@@ -18,56 +18,17 @@ import org.eclipse.rdf4j.repository.manager.RemoteRepositoryManager;
 import org.eclipse.rdf4j.repository.manager.RepositoryManager;
 
 
-public class GraphDao {
+public class SearchCheckedEventsDao implements DaoIfc{
 
-	private static final String URLS="http://172.17.2.139:7200";
-	
-	private static final String REPOSITORY="touraine-evenements";
-	
-	private RepositoryManager repositoryManager;
-	
-	private Repository repository;
-	
 	protected Integer resultLength;
-	
-	protected List<TraitementDesTypes>typeNumber;
-	
+
+	protected List<TraitementOfTypes>typeNumber;
+
 	protected Integer sizetypeNumber;
 
 	private Integer compteur=0;
-	
-	
-	/**
-	 * Etablis la connexion avec le repository dans graphdb
-	 */
-	public void connexion(){
-		//repository manager
-		this.repositoryManager = new RemoteRepositoryManager(URLS);
-		repositoryManager.initialize();
-		// Open a connection to this repository
-		this.repository = repositoryManager.getRepository(REPOSITORY);
 
-	}
 
-	/**
-	 * construit le filter contenant la liste des évenement
-	 * @param listEvenement
-	 * @return
-	 */
-	private String filterEvenementList(List<String> listEvenement){
-		int lastcomaIndex=0;
-		String filterListEvent="FILTER(?type IN(";
-		for (String event : listEvenement) {
-			String filter="<http://schema.org/"+event+">";
-			filterListEvent+=filter+",";
-
-		}
-		lastcomaIndex=filterListEvent.lastIndexOf(",");
-		filterListEvent=filterListEvent.substring(0, lastcomaIndex);
-		filterListEvent+="))";
-
-		return filterListEvent;
-	}
 
 	public Integer getResultLength() {
 		return resultLength;
@@ -80,14 +41,14 @@ public class GraphDao {
 		this.resultLength = resultLength;
 	}
 
-	public List<TraitementDesTypes> getTypeNumberList() {
+	public List<TraitementOfTypes> getTypeNumberList() {
 		return typeNumber;
 	}
 
-	public void setTypeNumberList(List<TraitementDesTypes> typeNumber) {
-		
+	public void setTypeNumberList(List<TraitementOfTypes> typeNumber) {
+
 		this.typeNumber = typeNumber;
-		for (TraitementDesTypes traitementDesTypes : typeNumber) {
+		for (TraitementOfTypes traitementDesTypes : typeNumber) {
 			if(traitementDesTypes==null){
 				compteur++;
 			}
@@ -99,17 +60,130 @@ public class GraphDao {
 	public Integer getSizetypeNumber() {
 		return sizetypeNumber;
 	}
-
 	/**
-	 * renvoi une liste de tous les évenement de type Evenement pour un critère donné
-	 * @param object
-	 * représente les données du formulaire soumis
-	 * @param offset
-	 * index permettant la pagination
+	 * renvoi la requete sparql a exécuter pour avoir la taille des résultats
 	 * @return
 	 */
-	public List<Evenement> listEvenement(FormPost object, Integer offset){
-		List<Evenement> resultList=new ArrayList<Evenement>();
+	private String getSparqlSizeRequest(){
+		String req="PREFIX schema: <http://schema.org/>"+
+				"PREFIX skos: <http://www.w3.org/2004/02/skos/core#>"+
+				"PREFIX foaf: <http://xmlns.com/foaf/0.1/>"
+				+"PREFIX luc: <http://www.ontotext.com/owlim/lucene#>"+
+
+		"SELECT (COUNT(?name) AS ?count)"+
+		"WHERE {"+
+		"{"+
+		"SELECT DISTINCT"+
+		"?type"+
+		"?name "+ 
+		"WHERE {"+
+		"?x rdf:type schema:Event ."+
+
+			   " GRAPH ?g {"+
+
+			    	"?x schema:name ?name ."
+			    	+
+
+			        "?x rdf:type ?type ."+
+			        " OPTIONAL {?x schema:startDate ?startDate . }"+
+
+			    	"OPTIONAL {?x schema:endDate ?endDate . }"+
+
+			       " OPTIONAL {?x schema:location/schema:name ?lieu}"+
+
+					"OPTIONAL {\n"
+					+ "?x schema:location/schema:address ?a .\n"
+					+ "?a schema:streetAddress ?streetAddress .\n"
+					+ "?a schema:postalCode ?postalCode .\n"
+					+ "?a schema:addressLocality ?addressLocality .\n"
+					+ "BIND (CONCAT(STR(?streetAddress) , STR(?postalCode), STR(?addressLocality)) AS ?adresseString)\n"+
+					"}"+
+					"OPTIONAL {?x schema:image ?i}\n"
+					+ "					OPTIONAL {?x schema:description ?d}\n"
+					+ "					OPTIONAL {\n"
+					+ "							  ?x schema:location ?loc .\n"
+					+ "				  			  ?loc schema:geo/schema:latitude ?lat .\n"
+					+ "							  ?loc schema:geo/schema:longitude ?long .\n"
+					+ "				             }\n"+
+					"}"+
+
+				"BEGINDATE"+"\n"
+				+ "ENDDATE"+"\n"
+				+ "EVENTCHOOSE"+"\n"
+
+				+ "}\n"
+				+ " GROUP BY ?type ?name\n"
+				+ " ORDER BY (STR(?startDate))\n"+
+				"}"+
+				"}";
+		return req;
+	}
+
+	/**
+	 * renvoi la requête sparql à exécuter pour avoir pour chaque type d'évènement son nombre
+	 * @return
+	 */
+	private String getSparqlRequestTypeNumber(){
+
+		String req="PREFIX schema: <http://schema.org/>"+
+				"PREFIX skos: <http://www.w3.org/2004/02/skos/core#>"+
+				"PREFIX foaf: <http://xmlns.com/foaf/0.1/>"
+				+"PREFIX luc: <http://www.ontotext.com/owlim/lucene#>"+
+
+		"SELECT ?type (COUNT(?name) AS ?count)"+
+		"WHERE {"+
+		"{"+
+		"SELECT DISTINCT"+
+		"?type"+
+		"?name "+ 
+		"WHERE {"+
+		"?x rdf:type schema:Event ."+
+
+			   " GRAPH ?g {"+
+
+			    	"?x schema:name ?name ."
+			    	+
+
+			        "?x rdf:type ?type ."+
+			        " OPTIONAL {?x schema:startDate ?startDate . }"+
+
+			    	"OPTIONAL {?x schema:endDate ?endDate . }"+
+
+			       " OPTIONAL {?x schema:location/schema:name ?lieu}"+
+
+					"OPTIONAL {\n"
+					+ "?x schema:location/schema:address ?a .\n"
+					+ "?a schema:streetAddress ?streetAddress .\n"
+					+ "?a schema:postalCode ?postalCode .\n"
+					+ "?a schema:addressLocality ?addressLocality .\n"
+					+ "BIND (CONCAT(STR(?streetAddress) , STR(?postalCode), STR(?addressLocality)) AS ?adresseString)\n"+
+					"}"+
+					"OPTIONAL {?x schema:image ?i}\n"
+					+ "					OPTIONAL {?x schema:description ?d}\n"
+					+ "					OPTIONAL {\n"
+					+ "							  ?x schema:location ?loc .\n"
+					+ "				  			  ?loc schema:geo/schema:latitude ?lat .\n"
+					+ "							  ?loc schema:geo/schema:longitude ?long .\n"
+					+ "				             }\n"+
+					"}"+
+
+				"BEGINDATE"+"\n"
+				+ "ENDDATE"+"\n"
+				+ "EVENTCHOOSE"+"\n"
+
+				+ "}\n"
+				+ " GROUP BY ?type ?name\n"
+				+ 
+				"}"+
+				"}"
+				+ "GROUP BY ?type ORDER BY DESC(?count)";
+		return req;
+
+	}
+
+	@Override
+	public List<Event> getEvenementList(FormPost object, Integer offset,Repository repository ) {
+		List<Event> resultList=new ArrayList<Event>();
 		EvenementSourceDescriptionLimit tronquer=null;
 		try (RepositoryConnection repositoryConnection=repository.getConnection()) {
 			String querySizeResult=getSparqlSizeRequest();
@@ -130,8 +204,6 @@ public class GraphDao {
 					+ "(GROUP_CONCAT(?g) AS ?sources)\n"
 					+ 		"WHERE { \n"
 					+ "				 ?x rdf:type schema:Event .\n"
-					+ "				 PLAINTEXT \n"
-
 					+ "				 GRAPH ?g {\n"
 					+ "				 ?x schema:name ?name .\n"
 					+ "				 ?x rdf:type ?type .\n"
@@ -202,22 +274,12 @@ public class GraphDao {
 				querySizeResult=querySizeResult.replaceAll("EVENTCHOOSE", filterListEvenement);
 				queryStringTypeNumber=queryStringTypeNumber.replaceAll("EVENTCHOOSE", filterListEvenement);
 			}
-			//plain text
-			if((object.searchFullText==null)||(object.searchFullText.equals(""))){
-				queryString=queryString.replaceAll("PLAINTEXT", "");
-				querySizeResult=querySizeResult.replaceAll("PLAINTEXT", "");
-				queryStringTypeNumber=queryStringTypeNumber.replaceAll("PLAINTEXT", "");
-				setTypeNumberList(getTypeNumber(queryStringTypeNumber, repositoryConnection));
-			}else{
-				queryString=queryString.replaceAll("PLAINTEXT", "?x luc:searchdatas \""+object.searchFullText+"*\".");
-				querySizeResult=querySizeResult.replaceAll("PLAINTEXT","?x luc:searchdatas \""+object.searchFullText+"*\".");
-				queryStringTypeNumber=queryStringTypeNumber.replaceAll("PLAINTEXT","?x luc:searchdatas \""+object.searchFullText+"*\".");
-				setTypeNumberList(getTypeNumber(queryStringTypeNumber, repositoryConnection));
-			}
-			setResultLength(getSizeEvent(querySizeResult, repositoryConnection));
+
+			setResultLength(getSizeOfEvents(querySizeResult, repositoryConnection));
+			setTypeNumberList(getNumberOfEachEventType(queryStringTypeNumber,repositoryConnection));
 			System.out.println(queryString);
 			TupleQuery tupleQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
-			Evenement event=null;
+			Event event=null;
 			String valueOfSource=null;
 			String valueOfDescription =null;
 
@@ -225,12 +287,11 @@ public class GraphDao {
 			try (TupleQueryResult result = tupleQuery.evaluate()) {
 				while (result.hasNext()) {  // iterate over the result
 
-					event=new Evenement();
+					event=new Event();
 					BindingSet bindingSet = result.next();
 					if(bindingSet.getValue("type")!=null){
 						String valueOfType = bindingSet.getValue("type").stringValue();
-						event.setType(valueOfType);
-						TraitementDesTypes tr=new TraitementDesTypes();
+						TraitementOfTypes tr=new TraitementOfTypes();
 						tr.setMapType(valueOfType);
 						event.setType(tr.nom);
 					}else{
@@ -330,13 +391,29 @@ public class GraphDao {
 		System.out.println(resultList);
 		return resultList;
 	}
-	/**
-	 * Renvoi la taille du resultat
-	 * @param request
-	 * @param repositoryConnection
-	 * @return
-	 */
-	private Integer getSizeEvent(String request,RepositoryConnection repositoryConnection){
+
+
+	@Override
+	public String filterEvenementList(List<String> listEvenement) {
+		// TODO Auto-generated method stub
+		int lastcomaIndex=0;
+		String filterListEvent="FILTER(?type IN(";
+		for (String event : listEvenement) {
+			String filter="<http://schema.org/"+event+">";
+			filterListEvent+=filter+",";
+
+		}
+		lastcomaIndex=filterListEvent.lastIndexOf(",");
+		filterListEvent=filterListEvent.substring(0, lastcomaIndex);
+		filterListEvent+="))";
+
+		return filterListEvent;
+	}
+
+
+	@Override
+	public Integer getSizeOfEvents(String request, RepositoryConnection repositoryConnection) {
+		// TODO Auto-generated method stub
 		TupleQuery tupleQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, request);
 		Integer value=0;
 		try (TupleQueryResult result = tupleQuery.evaluate()) {
@@ -349,135 +426,20 @@ public class GraphDao {
 			}
 		}
 		return value;
-
-	}
-	/**
-	 * renvoi la requete sparql a exécuter pour avoir la taille des résultats
-	 * @return
-	 */
-	private String getSparqlSizeRequest(){
-		String req="PREFIX schema: <http://schema.org/>"+
-				"PREFIX skos: <http://www.w3.org/2004/02/skos/core#>"+
-				"PREFIX foaf: <http://xmlns.com/foaf/0.1/>"
-				+"PREFIX luc: <http://www.ontotext.com/owlim/lucene#>"+
-
-		"SELECT (COUNT(?name) AS ?count)"+
-		"WHERE {"+
-		"{"+
-		"SELECT DISTINCT"+
-		"?type"+
-		"?name "+ 
-		"WHERE {"+
-		"?x rdf:type schema:Event ."+
-
-			   " GRAPH ?g {"+
-
-			    	"?x schema:name ?name ."
-			    	+ "PLAINTEXT \n"+
-
-			        "?x rdf:type ?type ."+
-			        " OPTIONAL {?x schema:startDate ?startDate . }"+
-
-			    	"OPTIONAL {?x schema:endDate ?endDate . }"+
-
-			       " OPTIONAL {?x schema:location/schema:name ?lieu}"+
-
-					"OPTIONAL {\n"
-					+ "?x schema:location/schema:address ?a .\n"
-					+ "?a schema:streetAddress ?streetAddress .\n"
-					+ "?a schema:postalCode ?postalCode .\n"
-					+ "?a schema:addressLocality ?addressLocality .\n"
-					+ "BIND (CONCAT(STR(?streetAddress) , STR(?postalCode), STR(?addressLocality)) AS ?adresseString)\n"+
-					"}"+
-					"OPTIONAL {?x schema:image ?i}\n"
-					+ "					OPTIONAL {?x schema:description ?d}\n"
-					+ "					OPTIONAL {\n"
-					+ "							  ?x schema:location ?loc .\n"
-					+ "				  			  ?loc schema:geo/schema:latitude ?lat .\n"
-					+ "							  ?loc schema:geo/schema:longitude ?long .\n"
-					+ "				             }\n"+
-					"}"+
-
-				"BEGINDATE"+"\n"
-				+ "ENDDATE"+"\n"
-				+ "EVENTCHOOSE"+"\n"
-
-				+ "}\n"
-				+ " GROUP BY ?type ?name\n"
-				+ " ORDER BY (STR(?startDate))\n"+
-				"}"+
-				"}";
-		return req;
 	}
 
-	private String getSparqlRequestTypeNumber(){
 
-		String req="PREFIX schema: <http://schema.org/>"+
-				"PREFIX skos: <http://www.w3.org/2004/02/skos/core#>"+
-				"PREFIX foaf: <http://xmlns.com/foaf/0.1/>"
-				+"PREFIX luc: <http://www.ontotext.com/owlim/lucene#>"+
-
-		"SELECT ?type (COUNT(?name) AS ?count)"+
-		"WHERE {"+
-		"{"+
-		"SELECT DISTINCT"+
-		"?type"+
-		"?name "+ 
-		"WHERE {"+
-		"?x rdf:type schema:Event ."+
-
-			   " GRAPH ?g {"+
-
-			    	"?x schema:name ?name ."
-			    	+ "PLAINTEXT \n"+
-
-			        "?x rdf:type ?type ."+
-			        " OPTIONAL {?x schema:startDate ?startDate . }"+
-
-			    	"OPTIONAL {?x schema:endDate ?endDate . }"+
-
-			       " OPTIONAL {?x schema:location/schema:name ?lieu}"+
-
-					"OPTIONAL {\n"
-					+ "?x schema:location/schema:address ?a .\n"
-					+ "?a schema:streetAddress ?streetAddress .\n"
-					+ "?a schema:postalCode ?postalCode .\n"
-					+ "?a schema:addressLocality ?addressLocality .\n"
-					+ "BIND (CONCAT(STR(?streetAddress) , STR(?postalCode), STR(?addressLocality)) AS ?adresseString)\n"+
-					"}"+
-					"OPTIONAL {?x schema:image ?i}\n"
-					+ "					OPTIONAL {?x schema:description ?d}\n"
-					+ "					OPTIONAL {\n"
-					+ "							  ?x schema:location ?loc .\n"
-					+ "				  			  ?loc schema:geo/schema:latitude ?lat .\n"
-					+ "							  ?loc schema:geo/schema:longitude ?long .\n"
-					+ "				             }\n"+
-					"}"+
-
-				"BEGINDATE"+"\n"
-				+ "ENDDATE"+"\n"
-				+ "EVENTCHOOSE"+"\n"
-
-				+ "}\n"
-				+ " GROUP BY ?type ?name\n"
-				+ 
-				"}"+
-				"}"
-				+ "GROUP BY ?type ORDER BY DESC(?count)";
-		return req;
-
-	}
-
-	private List<TraitementDesTypes>getTypeNumber(String req, RepositoryConnection repositoryConnection){
-
+	@Override
+	public List<TraitementOfTypes> getNumberOfEachEventType(String req, RepositoryConnection repositoryConnection) {
+		// TODO Auto-generated method stub
 		TupleQuery tupleQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, req);
 		Integer value=0;
 		String type=null;
-		List<TraitementDesTypes> listType=new ArrayList<TraitementDesTypes>();
+		List<TraitementOfTypes> listType=new ArrayList<TraitementOfTypes>();
 		try (TupleQueryResult result = tupleQuery.evaluate()) {
 			while (result.hasNext()) {  // iterate over the result
 				BindingSet bindingSet = result.next();
-				TraitementDesTypes tr=new TraitementDesTypes();
+				TraitementOfTypes tr=new TraitementOfTypes();
 				value =((Literal)bindingSet.getValue("count")).intValue();
 				if(bindingSet.getValue("type")!=null){
 					type = bindingSet.getValue("type").stringValue();
@@ -491,12 +453,11 @@ public class GraphDao {
 					}
 				}
 				continue;
-				
+
 
 			}
 		}
 		return listType;
-
 	}
 
 }
