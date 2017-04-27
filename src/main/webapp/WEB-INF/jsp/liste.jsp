@@ -107,10 +107,12 @@
 </head>
 <body>
 	<div class="container">
-		<h4 style="text-align: center; margin-bottom: 50px;">Touraine
+	<a class="btn btn-default" href="?"><span class="glyphicon glyphicon-home">Accueil</span></a>
+		<h4 style="text-align: center; margin-bottom: 30px;">Touraine
 			événements</h4>
+			
 		<div class="row-content">
-
+			
 			<div class="col-sm-2 sidenav">
 				<form name="general" method="get" onSubmit="return false">
 					<div class="input-group search">
@@ -129,14 +131,14 @@
 						</tr>
 						<tr>
 							<td><input type="text" name="datedeb"
-								value="${data.startDate}" id="datedeb"></td>
+								value="${data.startDate}" id="datedeb">${data.startDate}</td>
 						</tr>
 						<tr>
 							<td>Jusqu'au :</td>
 						</tr>
 						<tr>
 							<td><input type="text" name="datefin"
-								value="${data.endDate}" id="datefin"></td>
+								value="${data.endDate}" id="datefin">${data.endDate}</td>
 						</tr>
 						
 							<c:if test="${data.evenementListName!=null}">
@@ -207,7 +209,7 @@
 												</c:if>
 										</font>
 										</strong>
-										   ${evenement.type}
+										     ( ${evenement.type} )
 									</h6>
 									${evenement.description}<br />
 									<c:if test="${evenement.sources!=null}">

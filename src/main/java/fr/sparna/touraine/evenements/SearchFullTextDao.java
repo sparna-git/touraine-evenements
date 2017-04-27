@@ -11,7 +11,7 @@ import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 
-public class SearchFullTextDao implements DaoIfc{
+public class SearchFullTextDao implements DaoInterface{
 
 	protected Integer resultLength;
 

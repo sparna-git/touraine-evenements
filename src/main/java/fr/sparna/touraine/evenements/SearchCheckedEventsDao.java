@@ -18,7 +18,7 @@ import org.eclipse.rdf4j.repository.manager.RemoteRepositoryManager;
 import org.eclipse.rdf4j.repository.manager.RepositoryManager;
 
 
-public class SearchCheckedEventsDao implements DaoIfc{
+public class SearchCheckedEventsDao implements DaoInterface{
 
 	protected Integer resultLength;
 
@@ -44,7 +44,10 @@ public class SearchCheckedEventsDao implements DaoIfc{
 	public List<TraitementOfTypes> getTypeNumberList() {
 		return typeNumber;
 	}
-
+	/**
+	 * définit pour chaque type d'évènement son nombre.Elle prend en paramètre une liste de type TraitementOfTypes
+	 * @param typeNumber
+	 */
 	public void setTypeNumberList(List<TraitementOfTypes> typeNumber) {
 
 		this.typeNumber = typeNumber;

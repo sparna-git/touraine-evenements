@@ -1,6 +1,7 @@
 package fr.sparna.touraine.evenements;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -26,6 +27,7 @@ public class EventController {
 			@RequestParam(value="zonesearch", required=false) String fulltextsearch,
 			@RequestParam(value="index",  defaultValue="0",required=false) Integer index
 			) throws IOException  {
+		
 		EventData data=new EventData();
 		SearchCheckedEventsDao daoCkeckedEvent=new SearchCheckedEventsDao();
 		SearchFullTextDao searchtext=new SearchFullTextDao();
@@ -64,7 +66,7 @@ public class EventController {
 		//recherche sur critère(date de début, date de fin,type d'évènements demandés)
 		post=new FormPost(event,startDate,endDate,fulltextsearch);
 
-		//plain text
+		//récupération de la liste des évènements sur critères choisis
 		if((fulltextsearch==null)||(fulltextsearch.equals(""))){
 			data.setFullText(null);
 			eventList=daoCkeckedEvent.getEvenementList(post,index,repo);
@@ -72,13 +74,14 @@ public class EventController {
 			listOfType=daoCkeckedEvent.getTypeNumberList();
 			listOfTypeSize=daoCkeckedEvent.getSizetypeNumber();
 		}else{
+			//récupération de la liste des événements pour une recherche full text
 			data.setFullText(fulltextsearch);
 			eventList=searchtext.getEvenementList(post, index, repo);
 			resultLength=searchtext.getResultLength();
 			listOfType=searchtext.getTypeNumberList();
 			listOfTypeSize=searchtext.getSizetypeNumber();
 		}		
-
+		
 		data.setDataList(eventList);
 		data.setResultLenght(resultLength);
 		data.setMapType(listOfType);

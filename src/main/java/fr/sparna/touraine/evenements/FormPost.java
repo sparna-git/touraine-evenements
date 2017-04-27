@@ -3,21 +3,21 @@ package fr.sparna.touraine.evenements;
 import java.util.List;
 
 public class FormPost {
-	
+
 	protected List<String> evenement;
-	
+
 	protected String startDate;
-	
+
 	protected String endDate;
-	
+
 	protected EventData data;
-	
+
 	protected String searchFullText;
 
-	
+
 	public FormPost(List<String> evenement, String startDate, String endDate,String fulltextsearch) {
 		super();
-		
+
 		this.evenement = evenement;
 		this.startDate = startDate;
 		this.endDate = endDate;
@@ -40,8 +40,8 @@ public class FormPost {
 		return searchFullText;
 	}
 
-	
-	
-	
+
+
+
 
 }

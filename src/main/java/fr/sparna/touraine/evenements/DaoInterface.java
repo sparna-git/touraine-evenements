@@ -5,7 +5,7 @@ import java.util.List;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 
-public interface DaoIfc {
+public interface DaoInterface {
 	
 	/**
 	 * retourne la liste des évènements
