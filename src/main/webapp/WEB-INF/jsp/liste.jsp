@@ -65,7 +65,7 @@
 		var array1=["Musique","Dance","Théâtre","Commerce","Alimentaire",
 		            "Vente","Festival","Exposition",
 		            "Publication", "Art visuel", 
-		            "Enfant", "Sport","Social",
+		            "Enfants", "Sport","Social",
 		            "Littérature","Livraison",
 		            "Education","Comédie"
 		            ];
@@ -106,14 +106,19 @@
 </script>
 </head>
 <body>
+	<nav class="navbar navbar-default">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<a class="navbar-brand" href="#"> TOURAINE EVENEMENTS </a>
+			</div>
+		</div>
+	</nav>
 	<div class="container">
-	<a class="btn btn-default" href="?"><span class="glyphicon glyphicon-home">Accueil</span></a>
-		<h4 style="text-align: center; margin-bottom: 30px;">Touraine
-			événements</h4>
-			
+
+
 		<div class="row-content">
-			
-			<div class="col-sm-2 sidenav">
+
+			<div class="col-sm-3 sidenav jumbotron" id="critere">
 				<form name="general" method="get" onSubmit="return false">
 					<div class="input-group search">
 						<input type="text" class="form-control " value="${data.fullText}"
@@ -127,52 +132,60 @@
 					</div>
 					<table class="search">
 						<tr>
-							<td>A partir du :</td>
+							<td><font color="black">A partir du :</font></td>
 						</tr>
 						<tr>
 							<td><input type="text" name="datedeb"
 								value="${data.startDate}" id="datedeb">${data.startDate}</td>
 						</tr>
 						<tr>
-							<td>Jusqu'au :</td>
+							<td><font color="black">Jusqu'au :</font></td>
 						</tr>
 						<tr>
 							<td><input type="text" name="datefin"
 								value="${data.endDate}" id="datefin">${data.endDate}</td>
 						</tr>
-						
-							<c:if test="${data.evenementListName!=null}">
-								<c:forEach items="${data.evenementListName}" var="list">
-									<tr>
-										<td>
-											<div class="alert alert-default alert-dismissible" role="alert" style="height:10px;">
-												 <button type="button" class="close" data-dismiss="alert" value="${list}" onclick="remove(this.value)" aria-label="Close">
-												  	<span aria-hidden="true">&times;</span>
-												  </button>
-											  <strong>${list}</strong>
-											</div>
-									   </td>
-									</tr>
-								</c:forEach>
-							</c:if>
-							
-						
+
+						<c:if test="${data.evenementListName!=null}">
+							<c:forEach items="${data.evenementListName}" var="list">
+								<tr>
+									<td>
+										<div class="alert alert-default alert-dismissible"
+											role="alert" style="height: 10px;">
+											<button type="button" class="close" data-dismiss="alert"
+												value="${list}" onclick="remove(this.value)"
+												aria-label="Close">
+												<span aria-hidden="true">&times;</span>
+											</button>
+											<strong><font color="black">${list}</font></strong>
+										</div>
+									</td>
+								</tr>
+							</c:forEach>
+						</c:if>
+
+						<c:if test="${data.evenementListName==null}">
 							<c:forEach items="${data.mapType}" var="listtype">
 								<tr>
 									<td><label> <c:if test="${listtype!=null}">
 												<c:set var="compteur" scope="session" value="${compteur+1}" />
 												<input type="checkbox" name="evenement${compteur}"
 													value="${listtype.mapType}" id="evenement${compteur}">
-													${listtype.nom}	(${listtype.nombre})
+													<font color="black">${listtype.nom}	(${listtype.nombre})</font>
 													
 											</c:if>
 									</label></td>
 								</tr>
 							</c:forEach>
-									
+						</c:if>
 
 						<tr>
-							<td><button id="valid" onClick="concatParameters()">Filtrer</button></td>
+							<td>
+								<button id="valid" class="btn btn-default"
+									onClick="concatParameters()">Filtrer</button> <a
+								class="btn btn-default" href="?">initialiser</a>
+							</td>
+
 						</tr>
 
 					</table>
@@ -185,7 +198,7 @@
 						id="zonesearch">
 				</form>
 			</div>
-			<div class="col-sm-10">
+			<div class="col-sm-9">
 				<c:if test="${data.resultLenght!=0}">
 					<div class="list-group" data-offset="10">
 
@@ -208,8 +221,7 @@
 													<a href="${evenement.sources[0]}">${evenement.nom}</a>
 												</c:if>
 										</font>
-										</strong>
-										     ( ${evenement.type} )
+										</strong> (${evenement.type})
 									</h6>
 									${evenement.description}<br />
 									<c:if test="${evenement.sources!=null}">
@@ -259,9 +271,7 @@
 							class="img-thumbnail"
 							style="width: 10%; height: 50px; margin-left: 10px;"> <img
 							src="theme-paper/resource/img/mwebius.jpeg" class="img-thumbnail"
-							style="width: 10%; height: 50px; margin-left: 10px;"> <img
-							src="theme-paper/resource/img/sparna.jpeg" class="img-thumbnail"
-							style="width: 10%; height: 50px; margin-left: 10px;">
+							style="width: 10%; height: 50px; margin-left: 10px;"> 
 					</div>
 					<br />
 					<br />

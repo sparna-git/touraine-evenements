@@ -1,15 +1,20 @@
 .search{
-	margin-left: -80px;
+	margin-left: -20px;
+	
 
 }
 em{
 	font-weight:bold;
 	
 }
-.btn-default{
-	margin: auto;
-	text-align: center;
-}
+
 body{
-	background-color:#fffaf0;
+	background-color:#d3d3d3;
+	
+}
+.row-content{
+	margin-top:50px;
+}
+#critere{
+	
 }
