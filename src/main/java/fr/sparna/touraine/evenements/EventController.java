@@ -1,13 +1,12 @@
 package fr.sparna.touraine.evenements;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.eclipse.rdf4j.repository.Repository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -15,7 +14,12 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 public class EventController {
-
+	
+	@Autowired
+	private DaoInterface daoCkeckedEvent;
+	@Autowired
+	private DaoInterface searchtext;
+	
 	@RequestMapping("liste")
 	public ModelAndView listForm(
 			//paramètres à récupérer
@@ -26,20 +30,16 @@ public class EventController {
 			@RequestParam(value="fin",  required=false) String endDate,
 			@RequestParam(value="zonesearch", required=false) String fulltextsearch,
 			@RequestParam(value="index",  defaultValue="0",required=false) Integer index
-			) throws IOException  {
+	) throws IOException  {
 		
 		EventData data=new EventData();
-		SearchCheckedEventsDao daoCkeckedEvent=new SearchCheckedEventsDao();
-		SearchFullTextDao searchtext=new SearchFullTextDao();
 		FormPost post = null;
 		List<Event> eventList = null;
 		List<String>event=null;
 		Integer resultLength=0;
 		Integer listOfTypeSize=0;
 		List<TraitementOfTypes> listOfType=null;
-		//connexion avec la base graphdb
-		GraphConnexion conn=new GraphConnexion();
-		Repository repo= conn.connexion();
+		
 		data.setIndex(index);
 		//définir la date de début pour une recherche d'événement
 		if((startDate==null)||(startDate.equals(""))){
@@ -69,14 +69,14 @@ public class EventController {
 		//récupération de la liste des évènements sur critères choisis
 		if((fulltextsearch==null)||(fulltextsearch.equals(""))){
 			data.setFullText(null);
-			eventList=daoCkeckedEvent.getEvenementList(post,index,repo);
+			eventList=daoCkeckedEvent.getEvenementList(post,index);
 			resultLength=daoCkeckedEvent.getResultLength();
 			listOfType=daoCkeckedEvent.getTypeNumberList();
 			listOfTypeSize=daoCkeckedEvent.getSizetypeNumber();
 		}else{
 			//récupération de la liste des événements pour une recherche full text
 			data.setFullText(fulltextsearch);
-			eventList=searchtext.getEvenementList(post, index, repo);
+			eventList=searchtext.getEvenementList(post, index);
 			resultLength=searchtext.getResultLength();
 			listOfType=searchtext.getTypeNumberList();
 			listOfTypeSize=searchtext.getSizetypeNumber();

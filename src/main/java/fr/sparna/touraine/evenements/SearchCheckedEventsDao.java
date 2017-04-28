@@ -3,9 +3,7 @@ package fr.sparna.touraine.evenements;
 
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.query.BindingSet;
@@ -14,8 +12,6 @@ import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.eclipse.rdf4j.repository.manager.RemoteRepositoryManager;
-import org.eclipse.rdf4j.repository.manager.RepositoryManager;
 
 
 public class SearchCheckedEventsDao implements DaoInterface{
@@ -28,8 +24,14 @@ public class SearchCheckedEventsDao implements DaoInterface{
 
 	private Integer compteur=0;
 
+	private Repository repository;
 
-
+	public SearchCheckedEventsDao(GraphConnexion graphConnexion) {
+		super();
+		this.repository = graphConnexion.createRepository();
+	}
+	
+	@Override
 	public Integer getResultLength() {
 		return resultLength;
 	}
@@ -41,6 +43,7 @@ public class SearchCheckedEventsDao implements DaoInterface{
 		this.resultLength = resultLength;
 	}
 
+	@Override
 	public List<TraitementOfTypes> getTypeNumberList() {
 		return typeNumber;
 	}
@@ -60,6 +63,7 @@ public class SearchCheckedEventsDao implements DaoInterface{
 		compteur=0;
 	}
 
+	@Override
 	public Integer getSizetypeNumber() {
 		return sizetypeNumber;
 	}
@@ -185,7 +189,7 @@ public class SearchCheckedEventsDao implements DaoInterface{
 	}
 
 	@Override
-	public List<Event> getEvenementList(FormPost object, Integer offset,Repository repository ) {
+	public List<Event> getEvenementList(FormPost object, Integer offset) {
 		List<Event> resultList=new ArrayList<Event>();
 		EvenementSourceDescriptionLimit tronquer=null;
 		try (RepositoryConnection repositoryConnection=repository.getConnection()) {
@@ -413,10 +417,7 @@ public class SearchCheckedEventsDao implements DaoInterface{
 		return filterListEvent;
 	}
 
-
-	@Override
 	public Integer getSizeOfEvents(String request, RepositoryConnection repositoryConnection) {
-		// TODO Auto-generated method stub
 		TupleQuery tupleQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, request);
 		Integer value=0;
 		try (TupleQueryResult result = tupleQuery.evaluate()) {
@@ -431,10 +432,7 @@ public class SearchCheckedEventsDao implements DaoInterface{
 		return value;
 	}
 
-
-	@Override
 	public List<TraitementOfTypes> getNumberOfEachEventType(String req, RepositoryConnection repositoryConnection) {
-		// TODO Auto-generated method stub
 		TupleQuery tupleQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, req);
 		Integer value=0;
 		String type=null;

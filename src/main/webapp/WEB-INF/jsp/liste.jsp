@@ -14,21 +14,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet"
-	href="theme-paper/resource/bootstrap/css/bootstrap.min.css">
-<link rel="stylesheet" href="theme-paper/resource/css/style.css">
-<link rel="stylesheet" href="theme-paper/resource/css/jquery-ui.min.css">
-<script src="theme-paper/resource/js/jquery-1.11.3.js"></script>
-<script src="theme-paper/resource/bootstrap/js/bootstrap.min.js"></script>
-<script src="theme-paper/resource/js/jquery-ui.min.js"></script>
+	href="resources/bootstrap/css/bootstrap.min.css">
+<link rel="stylesheet" href="resources/css/style.css">
+<link rel="stylesheet" href="resources/css/jquery-ui.min.css">
+<script src="resources/js/jquery-1.11.3.js"></script>
+<script src="resources/bootstrap/js/bootstrap.min.js"></script>
+<script src="resources/js/jquery-ui.min.js"></script>
 <script>
 
-	$(function() {
-		$("#datefin").datepicker();
-		$("#datefin").datepicker("option", "dateFormat", "yy-mm-dd");
-		$("#datedeb").datepicker();
-		$("#datedeb").datepicker("option", "dateFormat", "yy-mm-dd");
-
-	});
 	function concatParameters() {
 		var checkedBoxCoches = "";
 		
@@ -135,15 +128,13 @@
 							<td><font color="black">A partir du :</font></td>
 						</tr>
 						<tr>
-							<td><input type="text" name="datedeb"
-								value="${data.startDate}" id="datedeb">${data.startDate}</td>
+							<td><input type="text" name="datedeb" id="datedeb" /></td>
 						</tr>
 						<tr>
 							<td><font color="black">Jusqu'au :</font></td>
 						</tr>
 						<tr>
-							<td><input type="text" name="datefin"
-								value="${data.endDate}" id="datefin">${data.endDate}</td>
+							<td><input type="text" name="datefin" id="datefin" /></td>
 						</tr>
 
 						<c:if test="${data.evenementListName!=null}">
@@ -208,8 +199,8 @@
 
 									<a href="${evenement.sources[0]}"> <img id="imagepath"
 										class="media-object img-thumbnail"
-										<c:if test="${evenement.imagePath!=null}"> onerror="this.src='theme-paper/resource/img/noimage.png';" src="${evenement.imagePath}"</c:if>
-										<c:if test="${evenement.imagePath==null}"> src="theme-paper/resource/img/noimage.png"</c:if>
+										<c:if test="${evenement.imagePath!=null}"> onerror="this.src='resources/img/noimage.png';" src="${evenement.imagePath}"</c:if>
+										<c:if test="${evenement.imagePath==null}"> src="resources/img/noimage.png"</c:if>
 										style="width: 100px; height: 80px;">
 									</a>
 								</div>
@@ -267,10 +258,10 @@
 					</table>
 					<hr>
 					<div style="margin: auto;">
-						<img src="theme-paper/resource/img/sparna.jpeg"
+						<img src="resources/img/sparna.jpeg"
 							class="img-thumbnail"
 							style="width: 10%; height: 50px; margin-left: 10px;"> <img
-							src="theme-paper/resource/img/mwebius.jpeg" class="img-thumbnail"
+							src="resources/img/mwebius.jpeg" class="img-thumbnail"
 							style="width: 10%; height: 50px; margin-left: 10px;"> 
 					</div>
 					<br />
@@ -278,7 +269,7 @@
 				</c:if>
 				<c:if test="${data.resultLenght==0}">
 					<div style="margin: auto;">
-						<img src="theme-paper/resource/img/search.jpeg"
+						<img src="resources/img/search.jpeg"
 							class="img-thumbnail"
 							style="width: 20%; height: 100px; margin: auto;">
 						<p>Aucun résultat...</p>
@@ -292,6 +283,15 @@
 	$(document).ready(function() {
 		var newform = document.getElementById('newform');
 		newform.style.visibility = "hidden";
+		
+		
+		$("#datefin").datepicker();
+		$("#datefin").datepicker("option", "dateFormat", "yy-mm-dd");
+		$("#datefin").val('${data.endDate}');
+		
+		$("#datedeb").datepicker();
+		$("#datedeb").datepicker("option", "dateFormat", "yy-mm-dd");
+		$("#datedeb").val('${data.startDate}');
 		
 	});
 </script>

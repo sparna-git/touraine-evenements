@@ -44,5 +44,20 @@
     <mvc:resources mapping="/resources/**" location="/theme-paper/" />
 
 	<!-- / Application Config -->
+	<bean	id="graphConnexion"
+			class="fr.sparna.touraine.evenements.GraphConnexion" >
+		<constructor-arg name="repositoryManagerUrl" value="http://localhost:7200" />
+		<constructor-arg name="repositoryName" value="touraine100000" />
+    </bean>
+    
+    <bean	id="daoCkeckedEvent"
+			class="fr.sparna.touraine.evenements.SearchCheckedEventsDao" >
+		<constructor-arg name="graphConnexion" ref="graphConnexion" />
+    </bean>
+    
+    <bean	id="searchtext"
+			class="fr.sparna.touraine.evenements.SearchFullTextDao" >
+		<constructor-arg name="graphConnexion" ref="graphConnexion" />
+    </bean>
 
 </beans>

@@ -21,8 +21,15 @@ public class SearchFullTextDao implements DaoInterface{
 
 	private Integer compteur=0;
 
+	private Repository repository;
+
+	public SearchFullTextDao(GraphConnexion graphConnexion) {
+		super();
+		this.repository = graphConnexion.createRepository();
+	}
+	
 	@Override
-	public List<Event> getEvenementList(FormPost object, Integer offset,Repository repository) {
+	public List<Event> getEvenementList(FormPost object, Integer offset) {
 		// TODO Auto-generated method stub
 		List<Event> resultList=new ArrayList<Event>();
 		EvenementSourceDescriptionLimit tronquer=null;
@@ -257,7 +264,6 @@ public class SearchFullTextDao implements DaoInterface{
 		return filterListEvent;
 	}
 
-	@Override
 	public Integer getSizeOfEvents(String request, RepositoryConnection repositoryConnection) {
 		// TODO Auto-generated method stub
 		TupleQuery tupleQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, request);
@@ -274,7 +280,6 @@ public class SearchFullTextDao implements DaoInterface{
 		return value;
 	}
 
-	@Override
 	public List<TraitementOfTypes> getNumberOfEachEventType(String req, RepositoryConnection repositoryConnection) {
 		// TODO Auto-generated method stub
 		TupleQuery tupleQuery = repositoryConnection.prepareTupleQuery(QueryLanguage.SPARQL, req);
