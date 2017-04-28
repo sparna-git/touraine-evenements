@@ -1,5 +1,8 @@
 package fr.sparna.touraine.evenements;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.List;
 
 public class Event {
@@ -122,6 +125,34 @@ public class Event {
 	
 	public void setSources(List<String> sources) {
 		this.sources = sources;
+	}
+	
+	public String getDatefinDisplay() {
+		return getDateDisplay(datefin);
+	}
+	
+	public String getDatedebDisplay() {
+		return getDateDisplay(datedeb);
+	}
+	
+	private String getDateDisplay(String date) {
+		// le format de date cible
+		SimpleDateFormat targetFormat = new SimpleDateFormat("dd/MM/yyyy");
+		// la liste des formats que l'on teste
+		List<SimpleDateFormat> formatters = Arrays.asList(new SimpleDateFormat[] {
+				 new SimpleDateFormat("yyyy-MM-dd'T'hh:mm"),
+				 new SimpleDateFormat("yyyy-MM-dd"),
+				 new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss'Z'"),
+		});
+		for (SimpleDateFormat aFormatter : formatters) {
+			try {
+				return targetFormat.format(aFormatter.parse(date));
+			} catch (ParseException e) {
+				// ignore silently
+			}
+		}
+		// tout a échoué, on retourne la chaine de caractères de départ
+		return date;
 	}
 	
 /*	

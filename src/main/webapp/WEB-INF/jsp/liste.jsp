@@ -205,7 +205,7 @@
 									</a>
 								</div>
 								<div class="media-body">
-									Le ${evenement.datedeb}
+									Le ${evenement.datedebDisplay}
 									<h6 class="media-heading">
 										<strong> <font color="#2ECCFA"> <c:if
 													test="${evenement.nom!=null}">

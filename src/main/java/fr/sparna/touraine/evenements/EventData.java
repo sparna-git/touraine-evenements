@@ -2,10 +2,7 @@ package fr.sparna.touraine.evenements;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 public class EventData{
 	public static final String KEY = EventData.class.getCanonicalName();

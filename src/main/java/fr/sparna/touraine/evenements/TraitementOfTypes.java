@@ -14,15 +14,14 @@ public class TraitementOfTypes {
 	}
 
 	public void setMapType(String mapType) {
-		if(mapType.equals("http://schema.org/MusicEvent")){
+		 if(mapType.equals("http://schema.org/MusicEvent")){
 			 mapType="MusicEvent";
 			 this.nom="Musique";
 		 }
-		if(mapType.equals("http://schema.org/DanceEvent")){
+		 if(mapType.equals("http://schema.org/DanceEvent")){
 			 mapType="DanceEvent";
 			 this.nom="Dance";
-		 }
-		 
+		 }		 
 		 if(mapType.equals("http://schema.org/ChildrensEvent")){
 			 mapType="ChildrensEvent";
 			 this.nom="Enfants";
@@ -35,8 +34,7 @@ public class TraitementOfTypes {
 			 mapType="TheaterEvent";
 			 this.nom="Théâtre";
 		 }
-		 if(mapType.equals("http://schema.org/ComedyEvent")){
-			 
+		 if(mapType.equals("http://schema.org/ComedyEvent")){			 
 			 mapType="ComedyEvent";
 			 this.nom="Comédie";
 		 }
@@ -70,7 +68,7 @@ public class TraitementOfTypes {
 		 }
 		 if(mapType.equals("http://schema.org/SaleEvent")){
 			 mapType="SaleEvent";
-			 this.nom="vente";
+			 this.nom="Commercial";
 		 }
 		 if(mapType.equals("http://schema.org/FoodEvent")){
 			 mapType="FoodEvent";

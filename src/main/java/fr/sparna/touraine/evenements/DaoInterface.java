@@ -14,6 +14,7 @@ public interface DaoInterface {
 	 * @return
 	 */
 	public List<Event> getEvenementList(FormPost object, Integer offset);
+	
 	/**
 	 * renvoi un string représentant le filter des évènements choisis
 	 * ex : FILTER(?type IN(<http://schema.org/MusicEvent>))
